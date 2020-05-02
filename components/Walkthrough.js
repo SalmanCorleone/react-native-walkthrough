@@ -1,14 +1,8 @@
 import React, { useRef } from 'react';
-import {
-  StyleSheet,
-  View,
-  Image,
-  ScrollView,
-  Animated,
-  Dimensions,
-  Text,
-} from 'react-native';
+import { StyleSheet, View, Image, Dimensions, Text } from 'react-native';
 import TouchableBlock from './TouchableBlock';
+import Animated, { Value, set, add } from 'react-native-reanimated';
+import { onScrollEvent } from 'react-native-redash';
 
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT = Dimensions.get('window').height;
@@ -16,18 +10,21 @@ const HEIGHT = Dimensions.get('window').height;
 const images = {
   w1: require('../images/img-1.png'),
   w2: require('../images/img-2.png'),
-  // w2: require('../../../assets/images/walk-2.png'),
-  // w3: require('../../../assets/images/walk-3.png'),
-  // w4: require('../../../assets/images/walk-4.png'),
+  w3: require('../images/img-3.jpg'),
 };
 
+const { ScrollView, divide, interpolate } = Animated;
+
 const Welcome = () => {
+  let x = new Value(0);
   let scrollX = 0;
   let scrollView = useRef(null);
 
   const scrollNext = () => {
     scrollX += WIDTH;
-    scrollView.current.scrollTo({
+    add(x, WIDTH);
+    const node = scrollView.current.getNode();
+    node.scrollTo({
       x: scrollX,
       y: 0,
     });
@@ -35,83 +32,105 @@ const Welcome = () => {
 
   const scrollBack = () => {
     scrollX -= WIDTH;
-    scrollView.current.scrollTo({
+    const node = scrollView.current.getNode();
+    node.scrollTo({
       x: scrollX,
       y: 0,
     });
   };
 
+  const renderDots = () => {
+    const activeIndex = divide(x, WIDTH);
+
+    return (
+      <View style={styles.dotBox}>
+        {Object.keys(images).map((item, index) => {
+          const opacity = interpolate(activeIndex, {
+            inputRange: [index - 1, index, index + 1],
+            outputRange: [0.3, 1, 0.3],
+            extrapolate: 'clamp',
+          });
+
+          return (
+            <Animated.View
+              key={`dot-${index}`}
+              style={[styles.dot, { opacity }]}
+            />
+          );
+        })}
+      </View>
+    );
+  };
+
   return (
-    <ScrollView
-      contentOffset={WIDTH}
-      horizontal
-      ref={scrollView}
-      pagingEnabled
-      showsHorizontalScrollIndicator={false}
-      decelerationRate={0}
-      snapToAlignment="center"
-      onScroll={Animated.event([
-        { nativeEvent: { contentOffset: { x: scrollX } } },
-      ])}>
-      {Object.values(images).map((img, idx) => (
-        <View key={`img=${idx}`} style={styles.imgContainer}>
-          <Image source={img} style={styles.img} />
+    <>
+      <ScrollView
+        contentOffset={WIDTH}
+        horizontal
+        ref={scrollView}
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        decelerationRate={0}
+        snapToAlignment="center"
+        onScroll={onScrollEvent({ x })}>
+        {/* Image array */}
+        {Object.values(images).map((img, idx) => (
+          <View key={`img=${idx}`} style={styles.imgContainer}>
+            <Image source={img} style={styles.img} />
 
-          {/* Next Button */}
-          {idx < Object.values(images).length - 1 && (
-            <TouchableBlock
-              onPress={scrollNext}
-              absBottom={60}
-              absRight={20}
-              height={60}
-              width={60}
-              absolute
-              border={1}
-              center
-              middle
-              bg="white"
-              br={50}>
-              <Text style={{ fontSize: 40 }}> next </Text>
-            </TouchableBlock>
-          )}
+            {/* Next Button */}
+            {idx < Object.values(images).length - 1 && (
+              <TouchableBlock
+                onPress={scrollNext}
+                absBottom={30}
+                absRight={20}
+                height={60}
+                width={60}
+                absolute
+                center
+                middle
+                br={50}>
+                <Text style={styles.label}>Next</Text>
+              </TouchableBlock>
+            )}
 
-          {/* Prev Button */}
-          {idx < Object.values(images).length - 1 && idx > 0 && (
-            <TouchableBlock
-              onPress={scrollBack}
-              absBottom={60}
-              absLeft={20}
-              height={60}
-              width={60}
-              absolute
-              border={1}
-              center
-              middle
-              bg="white"
-              br={50}>
-              <Text style={{ fontSize: 40 }}> prev </Text>
-            </TouchableBlock>
-          )}
+            {/* Prev Button */}
+            {idx < Object.values(images).length && idx > 0 && (
+              <TouchableBlock
+                onPress={scrollBack}
+                absBottom={30}
+                absLeft={20}
+                height={60}
+                width={60}
+                absolute
+                center
+                middle
+                br={50}>
+                <Text style={styles.label}>Prev</Text>
+              </TouchableBlock>
+            )}
 
-          {/* Skip to App */}
-          {idx === Object.values(images).length - 1 && (
-            <TouchableBlock
-              absBottom={60}
-              absRight={20}
-              height={60}
-              width={60}
-              absolute
-              border={1}
-              center
-              middle
-              bg="white"
-              br={50}>
-              <Text style={{ fontSize: 40 }}> Done </Text>
-            </TouchableBlock>
-          )}
-        </View>
-      ))}
-    </ScrollView>
+            {/* Skip to App */}
+            {idx === Object.values(images).length - 1 && (
+              <TouchableBlock
+                absBottom={30}
+                absRight={20}
+                height={60}
+                width={60}
+                absolute
+                center
+                middle
+                br={50}>
+                <Text style={styles.label}>Done</Text>
+              </TouchableBlock>
+            )}
+          </View>
+        ))}
+      </ScrollView>
+
+      {/* Dots */}
+      {renderDots()}
+    </>
   );
 };
 
@@ -122,17 +141,26 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  label: {
+    fontSize: 20,
+    color: 'white',
+  },
   imgContainer: {
     height: HEIGHT,
     width: WIDTH,
   },
+  dotBox: {
+    position: 'absolute',
+    bottom: 30,
+    width: '100%',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
   dot: {
     height: 10,
     width: 10,
-    borderRadius: 90,
-    borderWidth: 2,
-    borderColor: 'darkgrey',
-    backgroundColor: 'grey',
+    borderRadius: 10,
+    backgroundColor: 'white',
     marginHorizontal: 5,
   },
 });
