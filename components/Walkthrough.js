@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { StyleSheet, View, Image, Dimensions, Text } from 'react-native';
 import TouchableBlock from './TouchableBlock';
-import Animated, { Value, set, add } from 'react-native-reanimated';
+import Animated, { Value, set, add, sub } from 'react-native-reanimated';
 import { onScrollEvent } from 'react-native-redash';
 
 const WIDTH = Dimensions.get('window').width;
@@ -22,9 +22,7 @@ const Welcome = () => {
 
   const scrollNext = () => {
     scrollX += WIDTH;
-    add(x, WIDTH);
-    const node = scrollView.current.getNode();
-    node.scrollTo({
+    scrollView.current.getNode().scrollTo({
       x: scrollX,
       y: 0,
     });
@@ -32,8 +30,7 @@ const Welcome = () => {
 
   const scrollBack = () => {
     scrollX -= WIDTH;
-    const node = scrollView.current.getNode();
-    node.scrollTo({
+    scrollView.current.getNode().scrollTo({
       x: scrollX,
       y: 0,
     });
