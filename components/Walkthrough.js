@@ -1,8 +1,13 @@
 import React, { useRef } from 'react';
 import { StyleSheet, View, Image, Dimensions, Text } from 'react-native';
 import TouchableBlock from './TouchableBlock';
-import Animated, { Value, set, add, sub } from 'react-native-reanimated';
-import { onScrollEvent } from 'react-native-redash';
+import Animated, {
+  Value,
+  set,
+  block,
+  call,
+  event,
+} from 'react-native-reanimated';
 
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT = Dimensions.get('window').height;
@@ -16,28 +21,26 @@ const images = {
 const { ScrollView, divide, interpolate } = Animated;
 
 const Welcome = () => {
-  let x = new Value(0);
+  let m = new Value(0);
   let scrollX = 0;
   let scrollView = useRef(null);
 
   const scrollNext = () => {
-    scrollX += WIDTH;
     scrollView.current.getNode().scrollTo({
-      x: scrollX,
+      x: scrollX + WIDTH,
       y: 0,
     });
   };
 
   const scrollBack = () => {
-    scrollX -= WIDTH;
     scrollView.current.getNode().scrollTo({
-      x: scrollX,
+      x: scrollX - WIDTH,
       y: 0,
     });
   };
 
   const renderDots = () => {
-    const activeIndex = divide(x, WIDTH);
+    const activeIndex = divide(m, WIDTH);
 
     return (
       <View style={styles.dotBox}>
@@ -69,7 +72,19 @@ const Welcome = () => {
         showsHorizontalScrollIndicator={false}
         decelerationRate={0}
         snapToAlignment="center"
-        onScroll={onScrollEvent({ x })}>
+        onScroll={event([
+          {
+            nativeEvent: {
+              contentOffset: {
+                x: (x) =>
+                  block([
+                    set(m, x),
+                    call([m], ([offsetX]) => (scrollX = offsetX)),
+                  ]),
+              },
+            },
+          },
+        ])}>
         {/* Image array */}
         {Object.values(images).map((img, idx) => (
           <View key={`img=${idx}`} style={styles.imgContainer}>
