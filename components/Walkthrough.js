@@ -7,6 +7,7 @@ import Animated, {
   block,
   call,
   event,
+  Extrapolate,
 } from 'react-native-reanimated';
 
 const WIDTH = Dimensions.get('window').width;
@@ -48,7 +49,7 @@ const Welcome = () => {
           const opacity = interpolate(activeIndex, {
             inputRange: [index - 1, index, index + 1],
             outputRange: [0.3, 1, 0.3],
-            extrapolate: 'clamp',
+            extrapolate: Extrapolate.CLAMP,
           });
 
           return (
@@ -65,7 +66,6 @@ const Welcome = () => {
   return (
     <>
       <ScrollView
-        contentOffset={WIDTH}
         horizontal
         ref={scrollView}
         pagingEnabled
