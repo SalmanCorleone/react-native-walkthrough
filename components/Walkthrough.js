@@ -14,8 +14,8 @@ const WIDTH = Dimensions.get('window').width;
 const HEIGHT = Dimensions.get('window').height;
 
 const images = {
-  w1: require('../images/img-1.png'),
-  w2: require('../images/img-2.png'),
+  w1: require('../images/img-1.jpg'),
+  w2: require('../images/img-2.jpg'),
   w3: require('../images/img-3.jpg'),
 };
 
