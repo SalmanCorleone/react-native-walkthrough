@@ -14,7 +14,7 @@ import Walkthrough from './components/Walkthrough';
 const App = () => {
   return (
     <>
-      <StatusBar backgroundColor="white" barStyle="dark-content" />
+      <StatusBar hidden backgroundColor="white" barStyle="dark-content" />
       <Walkthrough />
     </>
   );

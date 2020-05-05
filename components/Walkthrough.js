@@ -67,6 +67,7 @@ const Welcome = () => {
     <>
       <ScrollView
         horizontal
+        scrollEventThrottle={5}
         ref={scrollView}
         pagingEnabled
         showsHorizontalScrollIndicator={false}
@@ -79,7 +80,10 @@ const Welcome = () => {
                 x: (x) =>
                   block([
                     set(m, x),
-                    call([m], ([offsetX]) => (scrollX = offsetX)),
+                    call([m], ([offsetX]) => {
+                      console.log(offsetX);
+                      scrollX = offsetX;
+                    }),
                   ]),
               },
             },

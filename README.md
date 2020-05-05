@@ -1,6 +1,8 @@
 # react-native-walkthrough
 Swipeable walkthrough screens for react native
 
-## Preview on iOS
+## Preview on android and iOS
 
-![](./images/preview.gif)
+![](./images/preview-android.gif) 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+![](./images/preview-ios.gif)
